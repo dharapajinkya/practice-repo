@@ -11,12 +11,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.airline.model.Flight;
 import com.example.airline.service.FlightService;
 
 @RestController
+@RequestMapping("/api")
 public class FlightController {
 
 	@Autowired
@@ -26,7 +28,7 @@ public class FlightController {
 		this.flightService = flightService;
 	}
 
-	@GetMapping("/api/flights")
+	@GetMapping("/allFlights")
 	public ResponseEntity<List<Flight>> getFlights() {
 		try {
 			List<Flight> flights = flightService.getAllFlights();
@@ -40,7 +42,7 @@ public class FlightController {
 		}
 	}
 
-	@GetMapping("/api/flights/{flightNumber}")
+	@GetMapping("/flights/{flightNumber}")
 	public ResponseEntity<Flight> getFlight(@PathVariable(name = "flightNumber", required = true) String flightNumber) {
 		try {
 			Flight flight = flightService.getFlight(flightNumber);
@@ -54,7 +56,7 @@ public class FlightController {
 		}
 	}
 
-	@GetMapping("/api/flights/{origin}/{destination}")
+	@GetMapping("/flightsByOriginAndDestination/{origin}/{destination}")
 	public ResponseEntity<List<Flight>> getFlightsByOriginDestination(
 			@PathVariable(name = "origin", required = true) String origin,
 			@PathVariable(name = "destination", required = true) String destination) {
@@ -70,7 +72,7 @@ public class FlightController {
 		}
 	}
 
-	@PostMapping("/api/flights")
+	@PostMapping("/createFlight")
 	public ResponseEntity<HttpStatus> saveFlight(@RequestBody Flight flight) {
 		try {
 			flightService.saveFlight(flight);
@@ -81,7 +83,7 @@ public class FlightController {
 		}
 	}
 
-	@DeleteMapping("/api/flights/{flightNumber}")
+	@DeleteMapping("/deleteFlight/{flightNumber}")
 	public ResponseEntity<HttpStatus> deleteFlight(@PathVariable(name = "flightNumber") String flightNumber) {
 		try {
 			flightService.deleteFlight(flightNumber);
@@ -92,7 +94,7 @@ public class FlightController {
 		}
 	}
 
-	@PutMapping("/api/flights/{flightNumber}")
+	@PutMapping("/updateFlight/{flightNumber}")
 	public ResponseEntity<Flight> updateFlight(@RequestBody Flight flight,
 			@PathVariable(name = "flightNumber") String flightNumber) {
 		try {
