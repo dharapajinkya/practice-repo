@@ -1,5 +1,17 @@
 package com.example.airline.service;
 
-public interface FlightService {
+import java.util.List;
 
+import com.example.airline.model.Flight;
+
+public interface FlightService {
+	public List<Flight> getAllFlights();
+
+	public Flight getFlight(String flightNumber);
+
+	public void saveFlight(Flight flight);
+
+	public void deleteFlight(String flightNumber);
+
+	public void updateFlight(Flight flight);
 }
