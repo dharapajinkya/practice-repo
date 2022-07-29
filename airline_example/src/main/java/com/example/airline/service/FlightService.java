@@ -14,4 +14,6 @@ public interface FlightService {
 	public void deleteFlight(String flightNumber);
 
 	public void updateFlight(Flight flight);
+	
+	public List<Flight> getFlightByOriginAndDestination(String origin, String destination);
 }

@@ -7,5 +7,5 @@ import com.example.airline.model.Flight;
 
 @Repository
 public interface FlightRepository extends JpaRepository<Flight, String> {
-
+	
 }

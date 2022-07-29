@@ -1,12 +1,16 @@
 package com.example.airline.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,22 +19,29 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.example.airline.model.Flight;
 import com.example.airline.repository.FlightRepository;
 import com.example.airline.service.FlightService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(FlightController.class)
 class FlightControllerTest {
 
 	@MockBean
 	private FlightService flightService;
-	
-	@MockBean FlightRepository flightRepository;
+
+	@MockBean
+	FlightRepository flightRepository;
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	@Test
 	void testGetFlights() throws Exception {
@@ -54,17 +65,46 @@ class FlightControllerTest {
 	void testSaveFlight() throws Exception {
 		Flight flight = new Flight("ADD111", "PUN", "MUM", 3600f);
 		doNothing().when(flightRepository.save(flight));
-		mockMvc.perform(post("/api/flights/",flight)).andExpect(status().isCreated());
+		mockMvc.perform(post("/api/flights/", flight)).andExpect(status().isCreated());
 	}
 
 	@Test
 	void testDeleteFlight() {
-		
+
 	}
 
 	@Test
-	void testUpdateFlight() {
-		
+	void testUpdateFlight() throws JsonProcessingException, Exception {
+		Flight flight = new Flight("ADD111", "PUN", "MUM", 3600f);
+		Flight updatedFlight = new Flight("ADD111", "PUN", "MUM", 4800f);
+		String flightNumber = "ADD111";
+		Mockito.when(flightRepository.findById(flightNumber)).thenReturn(Optional.of(flight));
+		Mockito.when(flightRepository.save(any(Flight.class))).thenReturn(updatedFlight);
+		mockMvc.perform(put("/api/flights/{flightNumber}", flightNumber).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(updatedFlight))).andExpect(status().isOk());
+	}
+
+	@Test
+	void testGetFlightsByOriginDestination() throws Exception {
+		String origin = "PUN";
+		String destination = "MUM";
+		List<Flight> sortedFlights = getSortedFlightsByDuration(origin, destination);
+		Mockito.when(flightService.getFlightByOriginAndDestination(origin, destination)).thenReturn(sortedFlights);
+		mockMvc.perform(get("/api/flights/{origin}/{destination}", origin, destination)).andExpect(status().isOk());
+	}
+
+	private List<Flight> getSortedFlightsByDuration(String origin, String destination) {
+		Flight f1 = new Flight("ADD111", origin, destination, 3600f);
+		Flight f2 = new Flight("ADD121", origin, destination, 4600f);
+		Flight f3 = new Flight("ADD131", origin, destination, 600f);
+		Flight f4 = new Flight("ADD141", origin, destination, 300f);
+		Flight f5 = new Flight("ADD151", origin, destination, 13600f);
+		Flight f6 = new Flight("ADD161", origin, destination, 30600f);
+		Flight f7 = new Flight("ADD171", origin, destination, 4800f);
+		List<Flight> flights = Stream.of(f1, f2, f3, f4, f5, f6, f7).collect(Collectors.toList());
+		List<Flight> sortedFlights = flights.stream().sorted(Comparator.comparingDouble(Flight::getDuration))
+				.collect(Collectors.toList());
+		return sortedFlights;
 	}
 
 }

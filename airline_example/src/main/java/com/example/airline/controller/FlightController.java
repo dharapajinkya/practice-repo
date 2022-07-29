@@ -54,6 +54,22 @@ public class FlightController {
 		}
 	}
 
+	@GetMapping("/api/flights/{origin}/{destination}")
+	public ResponseEntity<List<Flight>> getFlightsByOriginDestination(
+			@PathVariable(name = "origin", required = true) String origin,
+			@PathVariable(name = "destination", required = true) String destination) {
+		try {
+			List<Flight> flights = flightService.getFlightByOriginAndDestination(origin, destination);
+			if(flights.isEmpty()) {
+				return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+			}else {
+				return new ResponseEntity<List<Flight>>(flights, HttpStatus.OK);
+			}
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 	@PostMapping("/api/flights")
 	public ResponseEntity<HttpStatus> saveFlight(@RequestBody Flight flight) {
 		try {
@@ -62,7 +78,7 @@ public class FlightController {
 			return new ResponseEntity<>(HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}		
+		}
 	}
 
 	@DeleteMapping("/api/flights/{flightNumber}")

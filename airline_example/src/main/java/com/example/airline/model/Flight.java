@@ -71,4 +71,8 @@ public class Flight {
 	public void setDuration(Float duration) {
 		this.duration = duration;
 	}
+	
+	public String toString() {
+		return "[ " + flightNumber + ", " + origin + ", " + destination + ", " + duration + " ]";
+	}
 }
