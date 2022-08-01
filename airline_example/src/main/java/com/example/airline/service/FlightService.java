@@ -9,11 +9,11 @@ public interface FlightService {
 
 	public Flight getFlight(String flightNumber);
 
-	public void saveFlight(Flight flight);
+	public String saveFlight(Flight flight);
 
-	public void deleteFlight(String flightNumber);
+	public String deleteFlight(String flightNumber);
 
-	public void updateFlight(Flight flight);
+	public String updateFlight(Flight flight);
 	
 	public List<Flight> getFlightByOriginAndDestination(String origin, String destination);
 }

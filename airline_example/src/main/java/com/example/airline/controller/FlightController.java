@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.airline.model.Flight;
 import com.example.airline.service.FlightService;
+import com.example.airline.util.Constants;
 
 @RestController
 @RequestMapping("/api")
@@ -62,9 +63,9 @@ public class FlightController {
 			@PathVariable(name = "destination", required = true) String destination) {
 		try {
 			List<Flight> flights = flightService.getFlightByOriginAndDestination(origin, destination);
-			if(flights.isEmpty()) {
+			if (flights.isEmpty()) {
 				return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-			}else {
+			} else {
 				return new ResponseEntity<List<Flight>>(flights, HttpStatus.OK);
 			}
 		} catch (Exception e) {
@@ -75,9 +76,10 @@ public class FlightController {
 	@PostMapping("/createFlight")
 	public ResponseEntity<HttpStatus> saveFlight(@RequestBody Flight flight) {
 		try {
-			flightService.saveFlight(flight);
+			String responseString = flightService.saveFlight(flight);
 			System.out.println("Flight Saved Successfully");
-			return new ResponseEntity<>(HttpStatus.CREATED);
+			return Constants.SUCCESS.equals(responseString) ? new ResponseEntity<>(HttpStatus.CREATED)
+					: new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -86,9 +88,10 @@ public class FlightController {
 	@DeleteMapping("/deleteFlight/{flightNumber}")
 	public ResponseEntity<HttpStatus> deleteFlight(@PathVariable(name = "flightNumber") String flightNumber) {
 		try {
-			flightService.deleteFlight(flightNumber);
+			String responseString = flightService.deleteFlight(flightNumber);
 			System.out.println("Flight Deleted Successfully");
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			return Constants.SUCCESS.equals(responseString) ? new ResponseEntity<>(HttpStatus.OK)
+					: new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -100,8 +103,9 @@ public class FlightController {
 		try {
 			Flight fl = flightService.getFlight(flightNumber);
 			if (fl != null) {
-				flightService.updateFlight(flight);
-				return new ResponseEntity<>(flight, HttpStatus.OK);
+				String responseString = flightService.updateFlight(flight);
+				return Constants.SUCCESS.equals(responseString) ? new ResponseEntity<>(flight, HttpStatus.OK)
+						: new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 			} else {
 				return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
 			}

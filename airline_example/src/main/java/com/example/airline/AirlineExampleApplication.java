@@ -5,6 +5,7 @@ import java.util.Collections;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -23,7 +24,7 @@ public class AirlineExampleApplication {
 
 	@Bean
 	public Docket swaggerConfiguration() {
-		return new Docket(DocumentationType.SWAGGER_2).select().paths(PathSelectors.ant("/api/*"))
+		return new Docket(DocumentationType.SWAGGER_2).select().paths(PathSelectors.any())
 				.apis(RequestHandlerSelectors.basePackage("com.example.airline")).build().apiInfo(apiInfo());
 	}
 
@@ -32,5 +33,16 @@ public class AirlineExampleApplication {
 				new springfox.documentation.service.Contact("Ajinkya Dharap", "http://github.com", "a@b.com"),
 				"API License", "http://github.com", Collections.emptyList());
 	}
+	
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+        registry
+                .addResourceHandler("swagger-ui.html")
+                .addResourceLocations("classpath:/META-INF/resources/");
+
+        registry
+                .addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
+    }
 
 }

@@ -2,7 +2,7 @@ package com.example.airline.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -15,23 +15,27 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import com.example.airline.model.Flight;
 import com.example.airline.repository.FlightRepository;
 import com.example.airline.service.FlightService;
+import com.example.airline.util.Constants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(FlightController.class)
 class FlightControllerTest {
 
-	@MockBean
+	@InjectMocks
 	private FlightService flightService;
 
 	@MockBean
@@ -64,13 +68,21 @@ class FlightControllerTest {
 	@Test
 	void testSaveFlight() throws Exception {
 		Flight flight = new Flight("ADD111", "PUN", "MUM", 3600f);
-		doNothing().when(flightRepository.save(flight));
-		mockMvc.perform(post("/api/flights/", flight)).andExpect(status().isCreated());
+		String responseString = Constants.SUCCESS;
+		Mockito.when(flightRepository.save(flight)).thenReturn(flight);
+		Mockito.when(flightService.saveFlight(flight)).thenReturn(responseString);
+		mockMvc.perform(post("/api/createFlight/", flight).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(flight))).andExpect(status().isCreated());
+		assertEquals(Constants.SUCCESS, responseString);
 	}
 
 	@Test
-	void testDeleteFlight() {
-
+	void testDeleteFlight() throws Exception {
+		String flightNumber = "ADD111";
+		String responseString = Constants.SUCCESS;
+		flightRepository.deleteById(flightNumber);
+		Mockito.when(flightService.deleteFlight(flightNumber)).thenReturn(responseString);
+		mockMvc.perform(delete("/deleteFlight/{flightNumber}", flightNumber)).andExpect(status().isOk());
 	}
 
 	@Test
@@ -90,7 +102,8 @@ class FlightControllerTest {
 		String destination = "MUM";
 		List<Flight> sortedFlights = getSortedFlightsByDuration(origin, destination);
 		Mockito.when(flightService.getFlightByOriginAndDestination(origin, destination)).thenReturn(sortedFlights);
-		mockMvc.perform(get("/api/flights/{origin}/{destination}", origin, destination)).andExpect(status().isOk());
+		MvcResult result = mockMvc.perform(get("/api/flights/{origin}/{destination}", origin, destination)).andReturn();
+		assertEquals(HttpStatus.OK, result.getResponse().getStatus());
 	}
 
 	private List<Flight> getSortedFlightsByDuration(String origin, String destination) {

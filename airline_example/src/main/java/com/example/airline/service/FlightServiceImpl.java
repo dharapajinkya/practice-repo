@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.airline.model.Flight;
 import com.example.airline.repository.FlightRepository;
+import com.example.airline.util.Constants;
 
 @Service
 public class FlightServiceImpl implements FlightService {
@@ -31,16 +32,31 @@ public class FlightServiceImpl implements FlightService {
 		return optFlight.get();
 	}
 
-	public void saveFlight(Flight flight) {
-		flightRepository.save(flight);
+	public String saveFlight(Flight flight) {
+		try {
+			Flight f = flightRepository.save(flight);
+			return f != null ? "Success" : "Failure";
+		} catch (Exception e) {
+			return "Failure";
+		}
 	}
 
-	public void deleteFlight(String flightNumber) {
-		flightRepository.deleteById(flightNumber);
+	public String deleteFlight(String flightNumber) {
+		try {
+			flightRepository.deleteById(flightNumber);
+			return Constants.SUCCESS;
+		} catch (Exception e) {
+			return Constants.FAILURE;
+		}
 	}
 
-	public void updateFlight(Flight flight) {
-		flightRepository.save(flight);
+	public String updateFlight(Flight flight) {
+		try {
+			flightRepository.save(flight);
+			return Constants.SUCCESS;
+		} catch (Exception e) {
+			return Constants.FAILURE;
+		}
 	}
 
 	@Override
