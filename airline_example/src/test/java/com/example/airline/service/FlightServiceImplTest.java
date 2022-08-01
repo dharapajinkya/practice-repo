@@ -1,7 +1,7 @@
 package com.example.airline.service;
 
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
 import java.util.List;
@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.example.airline.model.Flight;
 import com.example.airline.repository.FlightRepository;
+import com.example.airline.util.Constants;
 
 @SpringBootTest
 class FlightServiceImplTest {
@@ -51,19 +52,26 @@ class FlightServiceImplTest {
 	void testSaveFlight() {
 		Flight flight = new Flight("ADD111", "PUN", "MUM", 3600f);
 		doReturn(flight).when(flightRepository).save(any());
-		Flight returnedFlight = flight;
-		flightService.saveFlight(flight);
-		Assertions.assertNotNull(returnedFlight);		
+		String resString = flightService.saveFlight(flight);
+		Assertions.assertEquals(Constants.SUCCESS,resString);		
 	}
 
 	@Test
 	void testDeleteFlight() {
-		fail("Not yet implemented");
+		String flightNumber = "ADD111";
+		doNothing().when(flightRepository).deleteById(flightNumber);
+		String resString = flightService.deleteFlight(flightNumber);
+		Assertions.assertEquals(Constants.SUCCESS,resString);
 	}
 
 	@Test
 	void testUpdateFlight() {
-		fail("Not yet implemented");
+		Flight flight = new Flight("ADD111", "PUN", "MUM", 3600f);
+		Flight upFlight = new Flight("ADD111", "PUN", "MUM", 4800f);
+		doReturn(upFlight).when(flightRepository).save(any());
+		String resString = flightService.saveFlight(upFlight);
+		Assertions.assertEquals(flight.getFlightNumber(), upFlight.getFlightNumber());
+		Assertions.assertEquals(Constants.SUCCESS,resString);
 	}
 
 }
